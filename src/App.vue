@@ -1,5 +1,5 @@
 <template>
-
+<router-view />
   <div class="container">
     <h2>To-Do List</h2>
     <input
@@ -7,6 +7,7 @@
       type="text" 
       v-model="searchText" 
       placeholder="Search"
+      @keyup.enter="searchTodo"
     />
 
     <hr />
@@ -14,23 +15,43 @@
     <TodoSimpleForm @add-todo="addTodo" />
     <div style="color: red;">{{ error }}</div>
   
-    <div v-show="!filteredTodos.length">
+    <div v-show="!todos.length">
       <!-- todos 배열이 없을 때 나타나도록 -->
       There is nothing to display
     </div>
     <TodoList 
-    :todos="filteredTodos" 
+    :todos="todos" 
     @toggle-todo="toggleTodo" 
     @delete-todo="deleteTodo" 
     />
-   
+    <hr />
+      <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li
+        v-if="currentPage !== 1"
+        ><a class="page-link" @click="getTodos(currentPage - 1)" style="cursor: pointer;">Previous</a></li>
+        <li 
+          v-for="page in numerOfPages"
+          :key="page"
+          class="page-item"
+          :class="currentPage === page ? 'active' : null" 
+          
+          >
+        
+        <a class="page-link" @click="getTodos(page)">{{ page }}</a>
+        </li>
+        <li 
+        v-if="numerOfPages !== currentPage"
+        class="page-item"><a class="page-link" @click="getTodos(currentPage + 1)" style="cursor: pointer;">Next</a></li>
+      </ul>
+    </nav>
   </div>
   
 
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, watch} from 'vue';
 import TodoSimpleForm from './components/TodoSimpleForm.vue';
 import TodoList from './components/TodoList.vue';
 import axios from 'axios';
@@ -45,10 +66,21 @@ export default {
     
     const todos = ref([]);
     const error = ref('');
+    const numberOfTodos = ref(0);
+    const limit = 5;
+    const currentPage = ref(1);
+    const searchText = ref('');
 
-    const getTodos = async () => {
+
+    const numerOfPages = computed(() => {
+      return Math.ceil(numberOfTodos.value/limit);
+    });
+
+    const getTodos = async (page = currentPage.value) => {
+      currentPage.value = page;
       try {
-        const res = await axios.get('http://localhost:3000/todos');
+        const res = await axios.get(`http://localhost:3000/todos?_sort=id&_order=desc&subject_like=${searchText.value}&_page=${page}&_limit=${limit}`); // 한페이지당 데이터가 5개 보이도록
+        numberOfTodos.value = res.headers['x-total-count'];
         todos.value = res.data;
       } catch (err) {
         console.log(err);
@@ -63,11 +95,11 @@ export default {
       //데이터베이스에 투두 저장
       error.value = '';
       try {
-        const res =  await axios.post('http://localhost:3000/todos', {
+        await axios.post('http://localhost:3000/todos', {
         subject : todo.subject, // id를 넣지 않아도 db에서 알아서 1부터 아이디를 넣어준다.
         completed : todo.completed,
         });
-        todos.value.push(res.data);
+        getTodos(1);
       } catch (err) {
         console.log(err);
         error.value = "Somthing went wrong";
@@ -80,12 +112,10 @@ export default {
       try {
         await axios.delete('http://localhost:3000/todos/' + id); // 요청이 성공을 하면 다음 줄의 코드를 실행하고,
                                                                             //실패하면 catch로 넘어간다.
-        todos.value.splice(index, 1);
+        getTodos(1);
       } catch (err) {
         error.value = "Somthing went wrong";
       }
-      
-      
     };
 
     const toggleTodo = async (index) => {
@@ -102,17 +132,31 @@ export default {
 
     };
 
-    const searchText = ref('');
 
-    const filteredTodos = computed(() => {
-      if(searchText.value) {
-        return todos.value.filter(todo => {
-          return todo.subject.includes(searchText.value);
-        });
-      }
+    let timeout = null;
 
-      return todos.value;
+    const searchTodo = () => {
+      clearTimeout(timeout);
+      getTodos(1);
+    };
+
+    watch(searchText, () => {
+      clearTimeout(timeout); 
+      timeout = setTimeout(() => {
+        getTodos(1); 
+
+      }, 1000);
     });
+
+    // const filteredTodos = computed(() => {
+    //   if(searchText.value) {
+    //     return todos.value.filter(todo => {
+    //       return todo.subject.includes(searchText.value);
+    //     });
+    //   }
+
+    //   return todos.value;
+    // });
    
     return {
       todos,
@@ -120,9 +164,12 @@ export default {
       deleteTodo,
       toggleTodo,
       searchText,
-      filteredTodos,
+      // filteredTodos,
       error,
-      getTodos
+      getTodos,
+      numerOfPages,
+      currentPage,
+      searchTodo,
     };
   }
 }
