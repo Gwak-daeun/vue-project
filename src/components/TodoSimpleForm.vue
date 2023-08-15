@@ -29,7 +29,10 @@
 <script>
 import { ref } from 'vue';
     export default{
-        setup(props, context) { // 데이터를 자식 -> 부모로 보낼 때 필요한게 context에 들어있다.
+      emits: [
+        'add-todo'
+      ],  
+        setup(props, {emit}) { // 데이터를 자식 -> 부모로 보낼 때 필요한게 context에 들어있다.
             const todo = ref('');
             const hasError = ref(false);
             const todos = ref([]);
@@ -40,10 +43,10 @@ import { ref } from 'vue';
             if(todo.value == ''){
                 hasError.value = true;
             } else {
-                context.emit('add-todo', {
-                    id: Date.now(), 
-                    subject: todo.value, //id는 유니크해야 하기 때문에 타임스탬프로 아이디 생성
-                    completed: false,
+                emit('add-todo', {
+                  id: Date.now(),  //id는 유니크해야 하기 때문에 타임스탬프로 아이디 생성
+                  subject: todo.value, 
+                  completed: false,
                 }); //자식에서 부모로 데이터를 보낸다
             hasError.value = false;
             todo.value = '';

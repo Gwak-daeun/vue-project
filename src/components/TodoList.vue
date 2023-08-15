@@ -10,7 +10,8 @@
           <input 
             class="form-check-input"  
             type="checkbox" 
-            v-model="todo.completed"
+            :checked="todo.completed"
+            @change="toggleTodo(index)"
           />
           <label 
             class="form-check-label"
@@ -35,9 +36,26 @@
 export default {
     props:  {
         todos: {
-            type: Array,
+            type: Array, // 부모컴포넌트에서 보낸 데이터 타입이 배열이기 때문
             required: true
         }
+    },
+    emits : ['toggle-todo', 'delete-todo'],
+    setup(props, {emit}) {
+
+      const toggleTodo = (index) => {
+        emit('toggle-todo', index);
+      };
+
+      const deleteTodo = (index) => {
+        emit('delete-todo', index);
+      
+    };
+
+    return{
+      deleteTodo,
+      toggleTodo,
+    };
     }
 }
 </script>
