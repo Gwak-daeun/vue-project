@@ -6,16 +6,6 @@
       "id": 1
     },
     {
-      "subject": "6",
-      "completed": false,
-      "id": 7
-    },
-    {
-      "subject": "333",
-      "completed": false,
-      "id": 8
-    },
-    {
       "subject": "새로 할 일",
       "completed": false,
       "id": 9
@@ -56,14 +46,29 @@
       "id": 16
     },
     {
-      "subject": "치즈 굽기",
+      "subject": "치즈 포장하기",
       "completed": false,
       "id": 17
     },
     {
-      "subject": "치즈 늘이기",
+      "subject": "치즈 소분하기",
       "completed": false,
       "id": 18
+    },
+    {
+      "subject": "소 먹이 주기",
+      "completed": false,
+      "id": 19
+    },
+    {
+      "subject": "소 씻기기",
+      "completed": false,
+      "id": 20
+    },
+    {
+      "subject": "소 깨우기",
+      "completed": false,
+      "id": 21
     }
   ]
 }

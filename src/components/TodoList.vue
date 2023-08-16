@@ -5,13 +5,18 @@
       :key="todo.id"
     >
     <!-- v-for를 사용할 땐 유니크한 키값을 넣어줘야 한다. 엘레멘트(각각의 노드들)를 추적하기 위해 -->
-      <div class="car-body p-2 d-flex align-items-center">
+      <div 
+        class="car-body p-2 d-flex align-items-center"
+        style="cursor: pointer;"
+        @click="moveToPage(todo.id)"
+      >
         <div class="form-check flex-grow-1">
           <input 
             class="form-check-input"  
             type="checkbox" 
             :checked="todo.completed"
-            @change="toggleTodo(index)"
+            @change="toggleTodo(index, $event)"
+            @click.stop
           />
           <label 
             class="form-check-label"
@@ -23,7 +28,7 @@
         <div>
             <button 
               class="btn btn-danger btn-sm"
-              @click="deleteTodo(index)"
+              @click.stop="deleteTodo(index)"
             >
               Delete
             </button>
@@ -33,6 +38,7 @@
 </template>
 
 <script>
+import {useRouter} from 'vue-router';
 export default {
     props:  {
         todos: {
@@ -43,8 +49,10 @@ export default {
     emits : ['toggle-todo', 'delete-todo'],
     setup(props, {emit}) {
 
-      const toggleTodo = (index) => {
-        emit('toggle-todo', index);
+      const router = useRouter();
+
+      const toggleTodo = (index, event) => {
+        emit('toggle-todo', index, event.target.checked);
       };
 
       const deleteTodo = (index) => {
@@ -52,9 +60,21 @@ export default {
       
     };
 
+    const moveToPage = (todoId) => {
+      console.log(todoId);
+      // router.push('/todos/' + todoId);
+      router.push({
+        name : 'Todo',
+        params: {
+          id: todoId
+        }
+      });
+    };
+
     return{
       deleteTodo,
       toggleTodo,
+      moveToPage,
     };
     }
 }
