@@ -1,6 +1,15 @@
 <template>
       <div>
-        <h2>To-Do List</h2>
+        <div class="d-flex justify-content-between mb-3">
+          <h2>To-Do List</h2>
+          <button 
+          class="btn btn-primary"
+          @click="moveToCreatePage"
+          >
+            Create Todo
+          </button>
+        </div>
+        
         <input
           class="form-control"
           type="text" 
@@ -10,9 +19,7 @@
         />
     
         <hr />
-    
-        <TodoSimpleForm @add-todo="addTodo" />
-        <div style="color: red;">{{ error }}</div>
+
       
         <div v-show="!todos.length">
           <!-- todos 배열이 없을 때 나타나도록 -->
@@ -34,8 +41,7 @@
               :key="page"
               class="page-item"
               :class="currentPage === page ? 'active' : null" 
-              
-              >
+            >
             
             <a class="page-link" @click="getTodos(page)">{{ page }}</a>
             </li>
@@ -45,35 +51,48 @@
           </ul>
         </nav>
       </div>
-      
+      <Toast
+        v-if="showToast"
+        :message="toastMessage" 
+        :type="toastAlertType"
+      />
     
     </template>
     
     <script>
     import { ref, computed, watch} from 'vue';
-    import TodoSimpleForm from '@/components/TodoSimpleForm.vue';
     import TodoList from '@/components/TodoList.vue';
     import axios from 'axios';
-    
+    import Toast from '@/components/Toast.vue';
+    import {useToast} from '@/composables/toast';
+    import { useRouter } from 'vue-router';
+
     
     export default {
       components: {
-        TodoSimpleForm,
-        TodoList
+        TodoList,
+        Toast
       },
       setup() {
         
+        const router = useRouter();
         const todos = ref([]);
         const error = ref('');
         const numberOfTodos = ref(0);
         const limit = 5;
         const currentPage = ref(1);
         const searchText = ref('');
-    
-    
+ 
         const numerOfPages = computed(() => {
           return Math.ceil(numberOfTodos.value/limit);
         });
+
+        const {
+          showToast,
+          toastMessage,
+          toastAlertType,
+          triggerToast,
+          } = useToast();
     
         const getTodos = async (page = currentPage.value) => {
           currentPage.value = page;
@@ -84,6 +103,7 @@
           } catch (err) {
             console.log(err);
             error.value = "Somthing went wrong";
+            triggerToast('Something went wrong', 'danger');
           }
         };
     
@@ -102,6 +122,7 @@
           } catch (err) {
             console.log(err);
             error.value = "Somthing went wrong";
+            triggerToast('Something went wrong', 'danger');
           }
         };
     
@@ -114,6 +135,7 @@
             getTodos(1);
           } catch (err) {
             error.value = "Somthing went wrong";
+            triggerToast('Something went wrong', 'danger');
           }
         };
     
@@ -128,6 +150,7 @@
             todos.value[index].completed = checked
           } catch (err) {
             error.value = "Somthing went wrong";
+            triggerToast('Something went wrong', 'danger');
           }
     
         };
@@ -147,29 +170,29 @@
     
           }, 1000);
         });
+
+        const moveToCreatePage = () => {
+          router.push({
+            name : 'TodoCreate'
+          });
+        };
     
-        // const filteredTodos = computed(() => {
-        //   if(searchText.value) {
-        //     return todos.value.filter(todo => {
-        //       return todo.subject.includes(searchText.value);
-        //     });
-        //   }
-    
-        //   return todos.value;
-        // });
-       
         return {
           todos,
           addTodo,
           deleteTodo,
           toggleTodo,
           searchText,
-          // filteredTodos,
           error,
           getTodos,
           numerOfPages,
           currentPage,
           searchTodo,
+          toastMessage,
+          toastAlertType,
+          showToast,
+          triggerToast,
+          moveToCreatePage,
         };
       }
     }
