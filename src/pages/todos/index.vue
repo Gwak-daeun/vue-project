@@ -3,8 +3,8 @@
         <div class="d-flex justify-content-between mb-3">
           <h2>To-Do List</h2>
           <button 
-          class="btn btn-primary"
-          @click="moveToCreatePage"
+            class="btn btn-primary"
+            @click="moveToCreatePage"
           >
             Create Todo
           </button>
@@ -126,9 +126,9 @@
           }
         };
     
-        const deleteTodo = async (index) => {
+        const deleteTodo = async (id) => {
           error.value = '';
-          const id = todos.value[index].id;
+          
           try {
             await axios.delete('http://localhost:3000/todos/' + id); // 요청이 성공을 하면 다음 줄의 코드를 실행하고,
                                                                                 //실패하면 catch로 넘어간다.

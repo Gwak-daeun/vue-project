@@ -1,45 +1,63 @@
 <template>
-      <div 
+      <!-- <div 
       class="card mt-3"
       v-for="(todo, index) in todos"
       :key="todo.id"
+    > -->
+    <List
+        :items="todos"
     >
-    <!-- v-for를 사용할 땐 유니크한 키값을 넣어줘야 한다. 엘레멘트(각각의 노드들)를 추적하기 위해 -->
+    <template #default="{item, index}">
       <div 
         class="car-body p-2 d-flex align-items-center"
         style="cursor: pointer;"
-        @click="moveToPage(todo.id)"
+        @click="moveToPage(item.id)"
       >
-        <div class="form-check flex-grow-1">
+        <div class=" flex-grow-1">
           <input 
-            class="form-check-input"  
+            class="ml-2 mr-2"
             type="checkbox" 
-            :checked="todo.completed"
+            :checked="item.completed"
             @change="toggleTodo(index, $event)"
             @click.stop
           />
-          <label 
-            class="form-check-label"
-            :class="{todo: todo.completed}"
+          <span 
+            :class="{todo: item.completed}"
            >
-            {{ todo.subject }}
-          </label>
+            {{ item.subject }}
+          </span>
         </div>
         <div>
             <button 
               class="btn btn-danger btn-sm"
-              @click.stop="deleteTodo(index)"
+              @click.stop="openModal(item.id)"
             >
               Delete
             </button>
           </div>
       </div>
-    </div>
+    </template>
+    </List>
+    <teleport to="#modal">
+      <DeleteModal 
+        v-if="showModal" 
+        @close="closeModal"
+        @delete="deleteTodo"
+      />
+    </teleport>
+
 </template>
 
 <script>
 import {useRouter} from 'vue-router';
+import DeleteModal from '@/components/DeleteModal.vue';
+import { ref } from 'vue';
+import List from './List.vue';
 export default {
+  components: {
+    DeleteModal,
+    List
+  },  
     props:  {
         todos: {
             type: Array, // 부모컴포넌트에서 보낸 데이터 타입이 배열이기 때문
@@ -50,13 +68,27 @@ export default {
     setup(props, {emit}) {
 
       const router = useRouter();
+      const showModal = ref(false);
+      const todoDeleteId = ref(null);
 
       const toggleTodo = (index, event) => {
         emit('toggle-todo', index, event.target.checked);
       };
 
-      const deleteTodo = (index) => {
-        emit('delete-todo', index);
+      const openModal = (id) => {
+        todoDeleteId.value = id;
+        showModal.value = true;
+      };
+
+      const closeModal = () => {
+        todoDeleteId.value = null;
+        showModal.value = false;
+      };
+
+      const deleteTodo = () => {
+        emit('delete-todo', todoDeleteId.value);
+        showModal.value = false;
+        todoDeleteId.value = null;
       
     };
 
@@ -75,6 +107,9 @@ export default {
       deleteTodo,
       toggleTodo,
       moveToPage,
+      showModal,
+      openModal,
+      closeModal,
     };
     }
 }

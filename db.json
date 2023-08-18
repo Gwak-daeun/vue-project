@@ -52,7 +52,7 @@
     },
     {
       "subject": "치즈 소분하기",
-      "completed": false,
+      "completed": true,
       "id": 18
     },
     {
@@ -66,33 +66,10 @@
       "id": 20
     },
     {
-      "subject": "소 깨우기ㅇ",
-      "completed": false,
-      "id": 21
-    },
-    {
-      "subject": "치즈 쪼개기",
-      "completed": false,
-      "body": "치즈 쪼개야",
-      "id": 22
-    },
-    {
       "subject": "치즈치즈",
       "completed": false,
-      "body": "치즈지",
+      "body": "치즈",
       "id": 23
-    },
-    {
-      "subject": "",
-      "completed": false,
-      "body": "",
-      "id": 24
-    },
-    {
-      "subject": "",
-      "completed": false,
-      "body": "",
-      "id": 25
     }
   ]
 }

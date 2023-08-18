@@ -60,11 +60,15 @@
         Cancel
     </button>
   </form>
-  <Toast 
+
+  <transition name="fade">
+    <Toast 
     v-if="showToast"
-   :message="toastMessage" 
-   :type="toastAlertType"
+    :message="toastMessage" 
+    :type="toastAlertType"
    />
+  </transition>
+  
 </template>
 
 <script>
@@ -190,6 +194,22 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: all 0.5s ease;
+    }
 
+    .fade-enter-from,
+    .fade-leave-to {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    .fade-enter-to,
+    .fade-leave-from {
+        opacity: 1;
+        transform: translateY(0px);
+
+    }
 </style>
