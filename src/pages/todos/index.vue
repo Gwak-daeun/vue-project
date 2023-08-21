@@ -20,7 +20,6 @@
     
         <hr />
 
-      
         <div v-show="!todos.length">
           <!-- todos 배열이 없을 때 나타나도록 -->
           There is nothing to display
@@ -31,31 +30,16 @@
         @delete-todo="deleteTodo" 
         />
         <hr />
-          <nav aria-label="Page navigation example">
-          <ul class="pagination">
-            <li
-            v-if="currentPage !== 1"
-            ><a class="page-link" @click="getTodos(currentPage - 1)" style="cursor: pointer;">Previous</a></li>
-            <li 
-              v-for="page in numerOfPages"
-              :key="page"
-              class="page-item"
-              :class="currentPage === page ? 'active' : null" 
-            >
-            
-            <a class="page-link" @click="getTodos(page)">{{ page }}</a>
-            </li>
-            <li 
-            v-if="numerOfPages !== currentPage"
-            class="page-item"><a class="page-link" @click="getTodos(currentPage + 1)" style="cursor: pointer;">Next</a></li>
-          </ul>
-        </nav>
+        
+        <Pagination
+        v-if="todos.length"
+        :numberOfPages="numberOfPages"
+        :currentPage="currentPage"
+        @click="getTodos"
+        />
+
       </div>
-      <Toast
-        v-if="showToast"
-        :message="toastMessage" 
-        :type="toastAlertType"
-      />
+
     
     </template>
     
@@ -63,15 +47,15 @@
     import { ref, computed, watch} from 'vue';
     import TodoList from '@/components/TodoList.vue';
     import axios from 'axios';
-    import Toast from '@/components/Toast.vue';
     import {useToast} from '@/composables/toast';
     import { useRouter } from 'vue-router';
+    import Pagination from '@/components/Pagination.vue';
 
     
     export default {
       components: {
         TodoList,
-        Toast
+        Pagination
       },
       setup() {
         
@@ -83,7 +67,7 @@
         const currentPage = ref(1);
         const searchText = ref('');
  
-        const numerOfPages = computed(() => {
+        const numberOfPages = computed(() => {
           return Math.ceil(numberOfTodos.value/limit);
         });
 
@@ -185,7 +169,7 @@
           searchText,
           error,
           getTodos,
-          numerOfPages,
+          numberOfPages,
           currentPage,
           searchTodo,
           toastMessage,
